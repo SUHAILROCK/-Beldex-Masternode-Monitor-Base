@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>SSW Masternode Monitor</title>
+  <meta name="description" content="Manage and monitor your Beldex masternodes, track rewards, and generate reports."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <div id="app">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <div class="sidebar-logo">
+        <img src="SSWLOGO.webp" alt="SSW Monitor logo" />
+        <div class="logo-text-row">
+          <div class="logo-text">
+            <div class="logo-title">SSW Monitor</div>
+            <div class="logo-sub">Masternode Dashboard</div>
+          </div>
+        </div>
+        <button class="sidebar-toggle" id="sidebar-toggle" title="Collapse sidebar">‹</button>
+      </div>
+      <ul class="nav-links">
+        <li><a href="#" class="nav-item active" data-tab="dashboard">
+          <span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>
+          <span>Dashboard</span>
+        </a></li>
+        <li><a href="#" class="nav-item" data-tab="nodes">
+          <span class="nav-icon"><svg viewBox="0 0 24 24"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/><line x1="12" y1="2" x2="12" y2="22"/><line x1="2" y1="8.5" x2="22" y2="8.5"/><line x1="2" y1="15.5" x2="22" y2="15.5"/></svg></span>
+          <span>Nodes</span><span class="nav-badge" id="node-count-badge">0</span>
+        </a></li>
+        <li><a href="#" class="nav-item" data-tab="scan">
+          <span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><path d="M11 8v6M8 11h6"/></svg></span>
+          <span>Scan</span>
+        </a></li>
+        <li><a href="#" class="nav-item" data-tab="reports">
+          <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg></span>
+          <span>Reports</span>
+        </a></li>
+        <li><a href="#" class="nav-item" data-tab="analytics">
+          <span class="nav-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></span>
+          <span>Analytics</span>
+        </a></li>
+        <li><a href="#" class="nav-item" data-tab="status">
+          <span class="nav-icon"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+          <span>Status</span>
+        </a></li>
+        <li><a href="#" class="nav-item" data-tab="database">
+          <span class="nav-icon"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></span>
+          <span>Database</span>
+        </a></li>
+      </ul>
+      <div class="sidebar-footer">
+        <div class="network-status">
+          <span class="dot dot-green"></span>
+          <span id="network-height">Loading...</span>
+        </div>
+        <button class="btn btn-sm btn-outline logout-btn" id="logout-btn" style="margin-top:8px;width:100%">
+  <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+  <span class="logout-label">Logout</span>
+</button>
+      </div>
+    </nav>
+
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- Main Content -->
+    <main class="main">
+      <div class="topbar">
+        <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu">
+          <svg viewBox="0 0 24 24" width="20" height="20"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <h1 class="page-title" id="page-title">Dashboard</h1>
+        <div class="topbar-right">
+          <span class="last-scan-info" id="last-scan-info" style="display:none"></span>
+          <span id="autoscan-topbar-pill" class="autoscan-topbar-pill" style="display:none"></span>
+          <span class="price-pill" id="bdx-price-pill" style="display:none">
+            <span class="price-pill-label">BDX</span>
+            <span id="bdx-price-usd">—</span>
+            <span class="price-pill-sep">|</span>
+            <span class="price-pill-inr" id="bdx-price-inr">—</span>
+          </span>
+          <span class="viewer-badge">👁 View Only</span>
+          <button class="btn btn-amber btn-sm" id="quick-scan-btn">⟳ Scan Today</button>
+          <span class="time-display" id="time-display"></span>
+        </div>
+      </div>
+
+      <!-- DASHBOARD -->
+      <div class="tab-content active dashboard-redesign" id="tab-dashboard">
+        <div class="dashboard-command-deck">
+          <div class="dashboard-command-head">
+            <div class="dashboard-command-kicker">Control room</div>
+            <h2>Reward Operations</h2>
+            <div class="dashboard-command-line"></div>
+          </div>
+        <div class="stats-grid y2k-stats-grid dashboard-metric-grid" id="dashboard-stats">
+          <div class="stat-card accent-blue">
+            <div class="stat-icon">⬡</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-total-nodes">-</div>
+              <div class="stat-label-row">
+                <span class="stat-label">Total Nodes</span>
+                <span id="trend-total-nodes"></span>
+              </div>
+            </div>
+          </div>
+          <div class="stat-card accent-teal">
+            <div class="stat-icon">◈</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-rewards-count">-</div>
+              <div class="stat-label-row">
+                <span class="stat-label">Rewards Today</span>
+                <span id="trend-rewards-count"></span>
+              </div>
+            </div>
+          </div>
+          <div class="stat-card accent-amber">
+            <div class="stat-icon">◆</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-bdx-today">-</div>
+              <div class="stat-label-row">
+                <span class="stat-label">BDX Today</span>
+                <span id="trend-bdx-today"></span>
+              </div>
+              <div class="stat-fiat" id="stat-bdx-today-fiat"></div>
+            </div>
+          </div>
+          <div class="stat-card accent-purple">
+            <div class="stat-icon">⎔</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-block-height">-</div>
+              <div class="stat-label-row">
+                <span class="stat-label">Block Height</span>
+                <span class="stat-live" id="stat-block-live"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div>
+
+        <!-- Earnings chart -->
+        <div class="card mb-4 dash-chart-card y2k-chart-card">
+          <div class="card-header y2k-chart-header">
+            <div>
+              <h2 class="card-title">Earnings // <span id="chart-period-label">Last 30 Days</span></h2>
+            </div>
+            <div class="dash-chart-controls">
+              <div class="chart-period-toggle">
+                <button class="cpt-btn" data-action="chart-period" data-days="7">7D</button>
+                <button class="cpt-btn active" data-action="chart-period" data-days="30">30D</button>
+                <button class="cpt-btn" data-action="chart-period" data-days="90">90D</button>
+              </div>
+              <div class="chart-currency-toggle">
+                <button class="cct-btn active" data-action="chart-currency" data-currency="bdx">BDX</button>
+                <button class="cct-btn" data-action="chart-currency" data-currency="usd">USD</button>
+                <button class="cct-btn" data-action="chart-currency" data-currency="inr">INR</button>
+              </div>
+            </div>
+          </div>
+          <div id="chart-fiat-bar" style="display:none;padding:0 4px 10px;font-size:12px;color:var(--text3)"></div>
+          <div class="chart-container">
+            <div class="chart-tooltip-bar" id="chart-tooltip" style="display:none"></div>
+            <div class="chart-bars" id="dashboard-chart"></div>
+            <div class="chart-axis-line"></div>
+          </div>
+          <div id="chart-today-notice" class="chart-today-notice" style="display:none"></div>
+        </div>
+
+        <div class="card dash-vitals-card dashboard-ledger-card" id="db-health-card">
+          <div id="db-health-content"></div>
+        </div>
+
+        <div class="wallet-signal-grid mb-4" id="dashboard-wallet-signals"></div>
+
+        <div class="section-grid dashboard-ops-grid">
+          <div class="card dashboard-panel dashboard-panel-groups">
+            <div class="card-header dashboard-panel-header">
+              <div>
+                <div class="dashboard-panel-kicker">Wallet fleet</div>
+                <h2 class="card-title">Node Groups</h2>
+              </div>
+              <button class="btn btn-sm btn-outline" id="dash-manage-nodes-btn">Manage</button>
+            </div>
+            <div id="group-list-dashboard" class="group-list"></div>
+          </div>
+          <div class="card dashboard-panel dashboard-panel-rewards">
+            <div class="card-header dashboard-panel-header">
+              <div>
+                <div class="dashboard-panel-kicker">Live payout tape</div>
+                <h2 class="card-title">Today's Rewards</h2>
+              </div>
+              <span id="dash-rewards-summary" class="dash-rewards-summary"></span>
+            </div>
+            <div id="today-rewards-table" class="scroll-table-wrap"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NODES -->
+      <div class="tab-content nodes-redesign" id="tab-nodes">
+
+        <div class="card mb-4 nodes-import-card">
+          <div class="card-header">
+            <div>
+              <div class="page-kicker">Seed groups</div>
+              <h2 class="card-title">Seed Group Command Deck</h2>
+            </div>
+            <div class="nodes-import-actions">
+              <button class="btn btn-primary" id="import-all-btn">Import All Groups</button>
+              <button class="btn btn-outline btn-sm" id="check-duplicates-btn">Check Duplicates</button>
+            </div>
+          </div>
+          <p class="card-desc">Every prepared wallet pack lives here. Open any group to inspect real keys, add one key, import the full pack, or jump straight into the registry.</p>
+          <div class="seed-groups-stats" id="seed-groups-stats"></div>
+          <div class="group-import-grid" id="group-import-grid"></div>
+          <div id="dup-warning" style="display:none;margin-top:12px"></div>
+          <div class="seed-groups-foot">
+            <span class="seed-groups-status" id="import-status"></span>
+          </div>
+        </div>
+
+        <div class="card nodes-registry-card">
+          <div class="card-header">
+            <div>
+              <div class="page-kicker">Key registry</div>
+              <h2 class="card-title">Registered Nodes</h2>
+            </div>
+            <div class="btn-group">
+              <button class="btn btn-sm btn-outline" id="add-node-open-btn">+ Add Node</button>
+              <button class="btn btn-sm btn-danger-outline" id="clear-nodes-btn">Clear All</button>
+            </div>
+          </div>
+          <div id="nodes-stats-row" class="nodes-stats-row"></div>
+          <div id="nodes-wallet-copy-panel"></div>
+          <div class="search-bar">
+            <input type="text" id="nodes-search" class="input" placeholder="Search by label, wallet, or public key..."/>
+            <span class="search-count" id="nodes-search-count"></span>
+          </div>
+          <div id="nodes-table-wrap" class="scroll-table-wrap"></div>
+          <div id="nodes-pagination" class="pagination" style="display:none"></div>
+        </div>
+      </div>
+
+      <!-- SCAN -->
+      <div class="tab-content scan-redesign" id="tab-scan">
+
+        <div id="data-quality-strip"></div>
+
+        <!-- ── Scheduler Banner ── -->
+        <div class="sched-banner" id="scheduler-card">
+          <div class="sched-banner-left">
+            <div class="sched-pulse-wrap">
+              <span class="sched-pulse" id="sched-pulse-dot"></span>
+            </div>
+            <div>
+              <div class="sched-banner-title">AUTO-SCAN SCHEDULER</div>
+              <div class="sched-banner-sub">Runs in the background - no browser needed</div>
+            </div>
+            <div class="sched-status-badge" id="scheduler-status-badge"></div>
+            <span class="sched-last" id="scheduler-last-scan"></span>
+          </div>
+          <div class="sched-banner-right">
+            <select id="scheduler-interval" class="sched-select">
+              <option value="1">Every 1 h</option>
+              <option value="4">Every 4 h</option>
+              <option value="12">Every 12 h</option>
+              <option value="24" selected>Every 24 h</option>
+            </select>
+            <button class="sched-btn sched-btn-on" id="scheduler-enable-btn">Enable</button>
+            <button class="sched-btn sched-btn-off" id="scheduler-disable-btn" style="display:none">Disable</button>
+          </div>
+        </div>
+
+        <!-- ── Explorer Connection Status ── -->
+        <div class="explorer-status-bar" id="explorer-status-bar">
+          <div class="esb-left">
+            <span class="esb-indicator" id="esb-indicator">
+              <span class="esb-dot" id="esb-dot"></span>
+            </span>
+            <span class="esb-label" id="esb-label">EXPLORER LINK</span>
+            <span class="esb-status-text" id="esb-status-text">Checking...</span>
+            <span class="esb-latency" id="esb-latency"></span>
+          </div>
+          <div class="esb-right">
+            <span class="esb-height" id="esb-height"></span>
+            <button class="esb-refresh-btn" id="esb-refresh-btn" title="Re-check connection">↻</button>
+          </div>
+        </div>
+
+        <!-- ── Stuck Scan Recovery Alert ── -->
+        <div class="stuck-scan-alert" id="stuck-scan-alert" style="display:none">
+          <div class="ssa-stripe"></div>
+          <div class="ssa-icon">⚠</div>
+          <div class="ssa-content">
+            <div class="ssa-title">STALE SCAN STATE DETECTED</div>
+            <div class="ssa-desc">A scan appears to be stuck or crashed mid-run. Your data is safe — click Reset to safely clear the scan state.</div>
+          </div>
+          <button class="ssa-reset-btn" id="ssa-reset-btn">↺ RESET STUCK SCAN</button>
+        </div>
+
+        <!-- ── Main Scan Grid ── -->
+        <div class="scan-command-grid">
+
+          <!-- LEFT: Control Panel -->
+          <div class="scan-panel scan-panel-control">
+            <div class="scan-panel-label">SCAN TARGET</div>
+
+            <!-- Mode Pills -->
+            <div class="scan-mode-pills">
+              <label class="scan-pill">
+                <input type="radio" name="scan-mode" value="date" checked/>
+                <span>By Date</span>
+              </label>
+              <label class="scan-pill">
+                <input type="radio" name="scan-mode" value="daterange"/>
+                <span>Date Range</span>
+              </label>
+              <label class="scan-pill">
+                <input type="radio" name="scan-mode" value="range"/>
+                <span>Block Range</span>
+              </label>
+            </div>
+
+            <!-- By Date -->
+            <div id="scan-by-date" class="scan-inputs-wrap">
+              <div class="scan-field">
+                <label class="scan-field-label">TARGET DATE</label>
+                <input type="date" id="scan-date" class="scan-input"/>
+              </div>
+            </div>
+
+            <!-- By Date Range -->
+            <div id="scan-by-daterange" class="scan-inputs-wrap" style="display:none">
+              <div class="scan-field">
+                <label class="scan-field-label">FROM</label>
+                <input type="date" id="scan-from-date" class="scan-input"/>
+              </div>
+              <div class="scan-field">
+                <label class="scan-field-label">TO</label>
+                <input type="date" id="scan-to-date" class="scan-input"/>
+              </div>
+              <p class="scan-hint">Scans entire date range - good for full month recovery.</p>
+            </div>
+
+            <!-- By Block Range -->
+            <div id="scan-by-range" class="scan-inputs-wrap" style="display:none">
+              <div class="scan-field">
+                <label class="scan-field-label">START HEIGHT</label>
+                <input type="number" id="scan-start" class="scan-input" placeholder="e.g. 5200000"/>
+              </div>
+              <div class="scan-field">
+                <label class="scan-field-label">END HEIGHT</label>
+                <input type="number" id="scan-end" class="scan-input" placeholder="e.g. 5203000"/>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="scan-actions">
+              <button class="scan-fire-btn" id="scan-btn">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                EXECUTE SCAN
+              </button>
+              <button class="scan-resume-btn" id="resume-scan-btn" style="display:none">↺ RESUME</button>
+              <button class="scan-cancel-btn" id="cancel-scan-btn" style="display:none">✕ CANCEL</button>
+            </div>
+          </div>
+
+          <!-- RIGHT: Live Monitor -->
+          <div class="scan-panel scan-panel-monitor">
+            <div class="scan-panel-label">LIVE MONITOR</div>
+            <div id="scan-status-area" class="scan-status-area">
+              <div class="scan-idle-state">
+                <div class="scan-idle-ring"></div>
+                <div class="scan-idle-text">AWAITING TARGET</div>
+                <div class="scan-idle-sub">Configure scan parameters and execute</div>
+              </div>
+            </div>
+            <div class="scan-progress-block" id="scan-progress-wrap" style="display:none">
+              <div class="scan-progress-header">
+                <span class="scan-progress-label">BLOCK SWEEP</span>
+                <span class="scan-progress-pct" id="scan-progress-text">0%</span>
+              </div>
+              <div class="scan-progress-track">
+                <div class="scan-progress-fill" id="scan-progress-bar" style="width:0%">
+                  <div class="scan-progress-glow"></div>
+                </div>
+              </div>
+              <div class="scan-progress-meta">
+                <span id="scan-progress-blocks" class="scan-meta-item"></span>
+                <span id="scan-progress-found" class="scan-meta-item scan-meta-found"></span>
+                <span id="scan-progress-eta" class="scan-meta-item scan-meta-eta"></span>
+              </div>
+            </div>
+            <div id="scan-log" class="scan-log"></div>
+          </div>
+        </div>
+
+        <!-- ── Scan History ── -->
+        <div class="scan-section-card">
+          <div class="scan-section-header">
+            <div class="scan-section-title">
+              <span class="scan-section-dot"></span>SCAN HISTORY
+            </div>
+            <button class="scan-ghost-btn" id="scan-history-refresh-btn">↻ Refresh</button>
+          </div>
+          <div id="scan-history-list" class="scan-hist-list">
+            <div class="scan-empty">No completed scans yet</div>
+          </div>
+        </div>
+
+        <!-- ── Gap Analysis ── -->
+        <div class="scan-section-card">
+          <div class="scan-section-header">
+            <div class="scan-section-title">
+              <span class="scan-section-dot scan-section-dot-amber"></span>GAP ANALYSIS
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <label style="font-size:11px;color:var(--text2);white-space:nowrap">From date</label>
+              <input type="date" id="gap-from-date" class="scan-input" style="width:140px;padding:4px 8px;font-size:12px" title="Leave blank to auto-detect from scan history"/>
+              <button class="scan-ghost-btn scan-ghost-btn-primary" id="gap-analyze-btn">Analyze Gaps</button>
+            </div>
+          </div>
+          <p class="scan-section-desc">Detects dates where blocks were missed - scan ran too early or was never completed. Only checks dates from your first recorded scan onwards (or the date you specify). Automatically re-scans all flagged dates to recover missing rewards.</p>
+          <div id="gap-analysis-content">
+            <div class="scan-empty">Click "Analyze Gaps" to check for missing data across all dates.</div>
+          </div>
+        </div>
+
+        <!-- ── Scan Coverage Calendar ── -->
+        <div class="scan-section-card">
+          <div class="scan-section-header">
+            <div class="scan-section-title">
+              <span class="scan-section-dot scan-section-dot-blue"></span>COVERAGE CALENDAR
+            </div>
+            <div class="cov-legend">
+              <span class="cov-leg-item"><span class="cov-leg-dot cov-leg-dot-green"></span>Scanned</span>
+              <span class="cov-leg-item"><span class="cov-leg-dot cov-leg-dot-red"></span>Missing</span>
+              <span class="cov-leg-item"><span class="cov-leg-dot cov-leg-dot-grey"></span>Future</span>
+            </div>
+          </div>
+          <p class="scan-section-desc">90-day scan coverage grid. Green = scanned, red = no data found for that date. Click any cell to see detail.</p>
+          <div id="scan-coverage-wrap">
+            <div class="cov-loading">
+              <div class="cov-spinner"></div>
+              <span>Loading coverage data...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REPORTS -->
+      <div class="tab-content reports-redesign" id="tab-reports">
+        <div class="report-tz-bar">
+          <div class="tz-label-group">
+            <svg class="tz-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="8" cy="8" r="6.5"/>
+              <path d="M8 1.5C8 1.5 5.5 4.5 5.5 8s2.5 6.5 2.5 6.5M8 1.5C8 1.5 10.5 4.5 10.5 8S8 14.5 8 14.5M1.5 8h13"/>
+            </svg>
+            <span class="tz-label-text">Date zone</span>
+          </div>
+          <div class="tz-pill-group" role="group" aria-label="Date timezone">
+            <button class="tz-pill tz-pill-active" data-action="set-tz" data-tz="utc">UTC</button>
+            <button class="tz-pill" data-action="set-tz" data-tz="ist">IST <span class="tz-pill-offset">+5:30</span></button>
+          </div>
+          <span id="tz-hint" class="tz-hint"><svg viewBox="0 0 10 10" fill="currentColor" style="width:8px;height:8px;margin-right:3px;vertical-align:middle"><circle cx="5" cy="5" r="4"/></svg>matches wallet exports</span>
+        </div>
+        <div class="report-tabs" aria-label="Report type">
+          <button class="report-tab active report-tab-primary" data-rtab="daily"><span>Day</span><small>One date</small></button>
+          <button class="report-tab report-tab-primary" data-rtab="monthly"><span>Month</span><small>Calendar view</small></button>
+          <button class="report-tab report-tab-primary" data-rtab="range"><span>Custom Range</span><small>Any period</small></button>
+          <button class="report-tab report-tab-primary" data-rtab="grouped"><span>By Wallet</span><small>Wallet totals</small></button>
+          <button class="report-tab report-tab-primary" data-rtab="matrix"><span>Matrix View</span><small>Date grid</small></button>
+          <button class="report-tab report-tab-primary" data-rtab="perkey"><span>Per-Key Report</span><small>Exact keys</small></button>
+          <button class="report-tab report-tab-primary" data-rtab="roi"><span>ROI</span><small>Profit view</small></button>
+          <button class="report-tab report-tab-primary" data-rtab="leaderboard"><span>Hub Ranking</span><small>Compare wallets</small></button>
+        </div>
+
+        <!-- Daily -->
+        <div class="report-panel active" id="rpanel-daily">
+          <div class="card report-workbench-card report-workbench-card-daily">
+            <div class="card-header">
+              <div class="report-card-title">
+                <div class="page-kicker">Daily audit</div>
+                <h2 class="card-title">Daily Reward Report</h2>
+                <p class="card-desc">Shows every key that earned on one date, including block links and exact BDX.</p>
+              </div>
+              <div class="form-inline">
+                <label class="label mr-2">Date:</label>
+                <input type="date" id="report-daily-date" class="input input-sm"/>
+                <button class="btn btn-primary ml-2" id="daily-load-btn">Load Report</button>
+              </div>
+              <div class="btn-group" id="dl-daily-btns" style="display:none">
+                <button class="btn btn-success" id="daily-excel-btn">Export Excel</button>
+                <button class="btn btn-outline" id="daily-csv-btn">Export CSV</button>
+              </div>
+            </div>
+            <div id="daily-report-content"></div>
+          </div>
+        </div>
+
+        <!-- Monthly -->
+        <div class="report-panel" id="rpanel-monthly">
+          <div class="card report-workbench-card report-workbench-card-monthly">
+            <div class="card-header">
+              <div class="report-card-title">
+                <div class="page-kicker">Monthly audit</div>
+                <h2 class="card-title">Monthly Reward Report</h2>
+                <p class="card-desc">Month-level summary with daily breakdown so quiet days are easy to spot.</p>
+              </div>
+              <div class="form-inline">
+                <label class="label mr-2">Year:</label>
+                <input type="number" id="report-year" class="input input-sm" style="width:90px"/>
+                <label class="label mx-2">Month:</label>
+                <select id="report-month" class="input input-sm" style="width:130px">
+                  <option value="1">January</option><option value="2">February</option><option value="3">March</option>
+                  <option value="4">April</option><option value="5">May</option><option value="6">June</option>
+                  <option value="7">July</option><option value="8">August</option><option value="9">September</option>
+                  <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+                </select>
+                <button class="btn btn-primary ml-2" id="monthly-load-btn">Load Report</button>
+              </div>
+              <div class="btn-group" id="dl-monthly-btns" style="display:none">
+                <button class="btn btn-success" id="monthly-excel-btn">Export Excel</button>
+                <button class="btn btn-outline" id="monthly-csv-btn">Export CSV</button>
+              </div>
+            </div>
+            <div id="monthly-report-content"></div>
+          </div>
+        </div>
+
+        <!-- Custom Range -->
+        <div class="report-panel" id="rpanel-range">
+          <div class="card report-workbench-card report-workbench-card-range">
+            <div class="card-header">
+              <div class="report-card-title">
+                <div class="page-kicker">Custom audit</div>
+                <h2 class="card-title">Custom Range Report</h2>
+                <p class="card-desc">Pick any start and end date to prove total BDX, rewarded nodes, and silent nodes.</p>
+              </div>
+              <div class="form-inline">
+                <label class="label mr-2">From:</label>
+                <input type="date" id="report-from" class="input input-sm"/>
+                <label class="label mx-2">To:</label>
+                <input type="date" id="report-to" class="input input-sm"/>
+                <button class="btn btn-primary ml-2" id="range-load-btn">Generate Report</button>
+              </div>
+              <div class="btn-group" id="dl-range-btns" style="display:none">
+                <button class="btn btn-success" id="range-excel-btn">Export Excel</button>
+                <button class="btn btn-outline" id="range-csv-btn">Export CSV</button>
+              </div>
+            </div>
+            <div id="range-report-content"></div>
+          </div>
+        </div>
+        <!-- Matrix View (Date × Wallet Pivot) -->
+        <div class="report-panel" id="rpanel-matrix">
+          <div class="card report-workbench-card">
+            <div class="card-header">
+              <div class="report-card-title">
+                <div class="page-kicker">Date grid</div>
+                <h2 class="card-title">Matrix View</h2>
+                <p class="card-desc">Date × wallet pivot table. Each cell shows BDX earned by that wallet on that day.</p>
+              </div>
+              <div class="form-inline">
+                <label class="label mr-2">From:</label>
+                <input type="date" id="matrix-from" class="input input-sm"/>
+                <label class="label mx-2">To:</label>
+                <input type="date" id="matrix-to" class="input input-sm"/>
+                <button class="btn btn-primary ml-2" id="matrix-load-btn">Generate Matrix</button>
+                <div class="btn-group ml-2" id="dl-matrix-btns" style="display:none">
+                  <button class="btn btn-outline" id="matrix-csv-btn">CSV</button>
+                  <button class="btn btn-outline" id="matrix-excel-btn">⬇ Excel</button>
+                </div>
+              </div>
+            </div>
+            <div id="matrix-toolbar-area"></div>
+            <div id="matrix-report-content"></div>
+          </div>
+        </div>
+
+        <!-- ROI Calculator -->
+        <div class="report-panel" id="rpanel-roi">
+          <div class="card report-workbench-card report-workbench-card-roi">
+            <div class="card-header">
+              <div class="report-card-title">
+                <div class="page-kicker">Capital recovery</div>
+                <h2 class="card-title">ROI Calculator</h2>
+                <p class="card-desc">Shows deployed BDX, current earning rate, projected returns, and break-even progress.</p>
+              </div>
+              <button class="btn btn-sm btn-outline" id="roi-refresh-btn">↻ Refresh</button>
+            </div>
+            <div id="roi-report-content"></div>
+          </div>
+        </div>
+
+        <!-- Hub Leaderboard -->
+        <div class="report-panel" id="rpanel-leaderboard">
+          <div class="card report-workbench-card report-workbench-card-leaderboard">
+            <div class="card-header">
+              <div class="report-card-title">
+                <div class="page-kicker">Hub ranking</div>
+                <h2 class="card-title">Hub Performance Leaderboard</h2>
+                <p class="card-desc">Ranks wallet groups by BDX, reward count, BDX per node, and period share.</p>
+              </div>
+              <div class="form-inline">
+                <input type="date" id="lb-from" class="input input-sm"/>
+                <label class="label mx-2">to</label>
+                <input type="date" id="lb-to" class="input input-sm"/>
+                <button class="btn btn-primary ml-2" id="leaderboard-load-btn">Generate</button>
+              </div>
+            </div>
+            <div id="leaderboard-content"></div>
+          </div>
+        </div>
+
+        <!-- Grouped by Wallet -->
+        <div class="report-panel" id="rpanel-grouped">
+          <div class="card report-workbench-card report-workbench-card-grouped">
+            <div class="card-header">
+              <div class="report-card-title">
+                <div class="page-kicker">Wallet totals</div>
+                <h2 class="card-title">By Wallet Report</h2>
+                <p class="card-desc">Compare each wallet group, then click a wallet card to inspect its exact reward breakdown.</p>
+              </div>
+              <div class="form-inline">
+                <label class="label mr-2">From:</label>
+                <input type="date" id="grouped-from" class="input input-sm"/>
+                <label class="label mx-2">To:</label>
+                <input type="date" id="grouped-to" class="input input-sm"/>
+                <button class="btn btn-primary ml-2" id="grouped-load-btn">Generate</button>
+              </div>
+              <div class="btn-group" id="dl-grouped-btns" style="display:none">
+                <button class="btn btn-outline" id="grouped-excel-btn">⬇ Excel</button>
+              </div>
+            </div>
+            <div id="grouped-report-content"></div>
+          </div>
+        </div>
+
+        <!-- Per-Key Report -->
+        <div class="report-panel" id="rpanel-perkey">
+          <div class="card report-workbench-card report-workbench-card-perkey">
+            <div class="card-header">
+              <div class="report-card-title">
+                <div class="page-kicker">Key ledger</div>
+                <h2 class="card-title">Per-Key Report</h2>
+                <p class="card-desc">Full public key and wallet address for every node in the selected period.</p>
+              </div>
+              <div class="form-inline">
+                <label class="label mr-2">From:</label>
+                <input type="date" id="pk-from" class="input input-sm"/>
+                <label class="label mx-2">To:</label>
+                <input type="date" id="pk-to" class="input input-sm"/>
+                <button class="btn btn-primary ml-2" id="perkey-load-btn">Generate</button>
+              </div>
+              <div class="btn-group" id="dl-perkey-btns" style="display:none">
+                <button class="btn btn-outline" id="perkey-excel-btn">⬇ Excel</button>
+              </div>
+            </div>
+            <p class="card-desc">Full public key + wallet address for every node that earned rewards in the selected period. Click ⎘ to copy any key.</p>
+            <div id="perkey-report-content"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ANALYTICS -->
+      <div class="tab-content analytics-redesign" id="tab-analytics">
+        <!-- Anomaly Alert -->
+        <div id="anomaly-banner-area" class="mb-4"></div>
+
+        <div class="analytics-subnav mb-4">
+          <button class="analytics-nav-btn active" data-section="pi-section">Portfolio</button>
+          <button class="analytics-nav-btn" data-section="lowperf-section">Low Performers</button>
+          <button class="analytics-nav-btn" data-section="nhm-section">Health Matrix</button>
+          <button class="analytics-nav-btn" data-section="heatmap-section">Heatmap</button>
+          <button class="analytics-nav-btn" data-section="anomaly-section">Overdue Nodes</button>
+          <button class="analytics-nav-btn" data-section="topearners-section">Top Earners</button>
+          <button class="analytics-nav-btn" data-section="nethistory-section">Network History</button>
+        </div>
+
+        <!-- Portfolio Intelligence -->
+        <div class="card mb-4" id="pi-section">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Portfolio Intelligence</h2>
+              <p class="card-desc" style="margin:2px 0 0">Earnings summary across your entire masternode portfolio</p>
+            </div>
+            <div class="pi-period-tabs">
+              <button class="pi-tab active" data-days="30">30d</button>
+              <button class="pi-tab" data-days="60">60d</button>
+              <button class="pi-tab" data-days="90">90d</button>
+            </div>
+          </div>
+          <div id="pi-stats-row" class="pi-stats-row"></div>
+          <div id="pi-chart-container" class="pi-chart-wrap"></div>
+        </div>
+
+        <!-- Low Performer Detector -->
+        <div class="card mb-4" id="lowperf-section">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Low Performer Detector</h2>
+              <p class="card-desc" style="margin:2px 0 0">Nodes earning below their wallet average for the current month.</p>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <input type="text" id="lowperf-search" class="input input-sm" placeholder="Search..." style="width:150px"/>
+              <button class="btn btn-sm btn-outline" id="lowperf-refresh-btn">Refresh</button>
+            </div>
+          </div>
+          <div id="lowperf-content"></div>
+        </div>
+
+        <!-- Node Health Matrix -->
+        <div class="card mb-4" id="nhm-section">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Node Health Matrix</h2>
+              <p class="card-desc" style="margin:2px 0 0">Quick overview of every node's reward status. Click a tile to open full detail.</p>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <input type="text" id="nhm-search" class="input input-sm" placeholder="Search public key, label, wallet..." style="width:230px"/>
+              <span class="muted" style="font-size:11px" id="nhm-count"></span>
+            </div>
+          </div>
+          <div id="node-health-matrix" class="nhm-grid"></div>
+          <div class="nhm-legend">
+            <span class="nhm-legend-item"><span class="nhm-dot" style="background:var(--green)"></span>Earning normally</span>
+            <span class="nhm-legend-item"><span class="nhm-dot" style="background:var(--amber)"></span>Waiting (1-1.5x avg)</span>
+            <span class="nhm-legend-item"><span class="nhm-dot" style="background:var(--red)"></span>Overdue (&gt;1.5x avg)</span>
+            <span class="nhm-legend-item"><span class="nhm-dot" style="background:var(--border2)"></span>No data</span>
+          </div>
+        </div>
+
+        <!-- Heatmap -->
+        <div class="card mb-4" id="heatmap-section">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Reward Heatmap</h2>
+              <p class="card-desc" style="margin:2px 0 0">Each square = one day. Bright cells earned BDX, slate cells were scanned with no reward, striped cells still need scanning.</p>
+            </div>
+            <div class="form-inline">
+              <select id="heatmap-year" class="input input-sm" style="width:100px"></select>
+            </div>
+          </div>
+          <div id="heatmap-container" class="heatmap-wrap"></div>
+          <div class="heatmap-legend">
+            <span class="hm-legend-pill"><span class="hm-cell hm-reward hm-c3"></span>Reward earned</span>
+            <span class="hm-legend-pill"><span class="hm-cell hm-scanned-empty"></span>Scanned, no reward</span>
+            <span class="hm-legend-pill"><span class="hm-cell hm-missing-scan"></span>Not scanned</span>
+            <span class="hm-legend-pill"><span class="hm-cell hm-future"></span>Future</span>
+          </div>
+        </div>
+
+        <!-- Anomaly Detection -->
+        <div class="card mb-4" id="anomaly-section">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Anomaly Detection, Overdue Nodes</h2>
+              <p class="card-desc" style="margin:2px 0 0">Nodes that have not earned in more than 1.5x their personal average wait time.</p>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <input type="text" id="anomaly-search" class="input input-sm" placeholder="Search..." style="width:150px"/>
+              <button class="btn btn-sm btn-outline" id="anomaly-refresh-btn">Refresh</button>
+            </div>
+          </div>
+          <div id="anomaly-table"></div>
+        </div>
+
+        <!-- Top Earners -->
+        <div class="card mb-4 analytics-showcase analytics-topearners-section" id="topearners-section">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Top Earners</h2>
+              <p class="card-desc" style="margin:2px 0 0">Which of your tracked masternodes earned the most on a given day.</p>
+            </div>
+            <div class="analytics-card-actions analytics-card-actions-date">
+              <input type="date" id="topearners-date" class="input input-sm" style="width:150px"/>
+              <button class="btn btn-sm btn-primary" id="topearners-load-btn">Load</button>
+            </div>
+          </div>
+          <div id="topearners-content" class="analytics-feature-body analytics-topearners-shell"></div>
+        </div>
+
+        <!-- Network History -->
+        <div class="card mb-4 analytics-showcase analytics-network-section" id="nethistory-section">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Network History</h2>
+              <p class="card-desc" style="margin:2px 0 0">Total masternode count on the Beldex network over the last 30 days.</p>
+            </div>
+            <div class="analytics-card-actions">
+              <button class="btn btn-sm btn-outline" id="nethistory-refresh-btn">Refresh</button>
+            </div>
+          </div>
+          <div id="network-history-chart" class="analytics-feature-body analytics-network-shell"></div>
+        </div>
+      </div>
+
+      <!-- DATABASE -->
+      <div class="tab-content database-redesign" id="tab-database">
+
+        <div class="database-subnav mb-4" aria-label="Database sections">
+          <a class="database-nav-btn" href="#db-backfill-card">Gap Repair</a>
+          <a class="database-nav-btn" href="#wallet-import-card">Wallet Import</a>
+          <a class="database-nav-btn" href="#db-retention-card">Retention</a>
+          <a class="database-nav-btn" href="#db-health-page-card">Health</a>
+          <a class="database-nav-btn" href="#db-maintenance-card">Maintenance</a>
+          <a class="database-nav-btn" href="#db-archive-card">Archives</a>
+        </div>
+
+        <!-- Smart Backfill -->
+        <div class="card mb-4" id="db-backfill-card">
+          <div class="card-header">
+            <h2 class="card-title">Smart Backfill, Gap Auto-Fill</h2>
+            <div class="btn-group">
+              <button class="btn btn-primary btn-sm" id="backfill-trigger-btn">Detect &amp; Fill Gaps</button>
+              <button class="btn btn-sm btn-outline" id="backfill-detect-btn">Detect Only</button>
+              <button class="btn btn-danger-outline btn-sm" id="backfill-cancel-btn" style="display:none">Cancel</button>
+            </div>
+          </div>
+          <p class="card-desc">Automatically detects date ranges where node rewards are missing and scans them. Default threshold: 7 days. Use custom range for finer detection (1-day threshold).</p>
+          <div class="form-inline mb-3" style="gap:10px;flex-wrap:wrap;align-items:center">
+            <span class="muted" style="font-size:12px">Custom range (optional):</span>
+            <input type="date" id="backfill-from-date" class="input input-sm" style="width:145px" title="From date"/>
+            <span class="muted" style="font-size:11px">to</span>
+            <input type="date" id="backfill-to-date" class="input input-sm" style="width:145px" title="To date"/>
+          </div>
+          <div id="gaps-list" class="mb-3"></div>
+          <div class="progress-wrap" id="backfill-progress-wrap" style="display:none">
+            <div class="progress-bar-outer">
+              <div class="progress-bar-inner" id="backfill-progress-bar" style="width:0%"></div>
+            </div>
+            <div class="progress-text" id="backfill-progress-text">0 / 0</div>
+          </div>
+          <div id="backfill-log" class="scan-log" style="display:none"></div>
+        </div>
+
+        <!-- Wallet Import Scan -->
+        <div class="card mb-4" id="wallet-import-card">
+          <div class="card-header">
+            <h2 class="card-title">Wallet Import Scan</h2>
+          </div>
+          <p class="card-desc">Paste your wallet transaction export to find and fill missing rewards instantly — no full-month rescan needed. Works with tab-separated exports where column 5 is the block height.</p>
+          <textarea id="wallet-import-text" class="wallet-import-textarea" rows="5" placeholder="Paste wallet transaction export here&#10;Example: 01 Apr 2026-9:48:05   miner   6.25902579   0   5261408   txhash..."></textarea>
+          <div class="form-inline mt-3" style="gap:12px;align-items:center">
+            <button class="btn btn-primary btn-sm" data-action="wallet-import-scan">Find &amp; Fill Missing Blocks</button>
+            <span id="wallet-import-result" class="muted" style="font-size:12px"></span>
+          </div>
+        </div>
+
+        <!-- Data Retention -->
+        <div class="card mb-4" id="db-retention-card">
+          <div class="card-header">
+            <h2 class="card-title">Data Retention, Delete Old Rewards</h2>
+          </div>
+          <p class="card-desc">Permanently delete reward records before a specific date. Use this to remove old February/early data you no longer need.</p>
+          <div class="form-inline" style="gap:10px;flex-wrap:wrap;padding:0 0 8px">
+            <label class="muted" style="font-size:13px">Delete all rewards before:</label>
+            <input type="date" id="prune-date" class="input input-sm" style="width:160px"/>
+            <button class="btn btn-danger-outline btn-sm" id="prune-btn">Delete Old Data</button>
+          </div>
+          <div id="prune-result" class="muted" style="font-size:12px;padding:4px 0"></div>
+        </div>
+
+        <!-- DB Health -->
+        <div class="card mb-4" id="db-health-page-card">
+          <div class="card-header">
+            <h2 class="card-title">Database Health &amp; Stats</h2>
+            <div class="btn-group">
+              <button class="btn btn-sm btn-outline" id="db-stats-refresh-btn">↻ Refresh</button>
+              <button class="btn btn-sm btn-outline" id="db-backup-btn">⬇ Backup DB</button>
+            </div>
+          </div>
+          <div id="db-detailed-stats"></div>
+        </div>
+
+        <!-- Vacuum & Archive -->
+        <div class="card mb-4" id="db-maintenance-card">
+          <div class="card-header">
+            <h2 class="card-title">Maintenance</h2>
+          </div>
+          <div class="section-grid" style="gap:16px">
+            <div class="maint-sub-card">
+              <h3 class="maint-sub-title">VACUUM &amp; Checkpoint</h3>
+              <p class="card-desc" style="margin-bottom:14px">Compacts the database, reclaims free pages, and flushes the WAL file. Safe to run anytime.</p>
+              <button class="btn btn-primary btn-sm" id="vacuum-btn">Run VACUUM</button>
+              <span id="vacuum-result" class="ml-2 muted" style="font-size:12px"></span>
+            </div>
+            <div class="maint-sub-card">
+              <h3 class="maint-sub-title">Archive Old Rewards</h3>
+              <p class="card-desc" style="margin-bottom:14px">Export rewards older than N months to a compressed archive file, then delete them from the DB.</p>
+              <div class="form-inline" style="gap:8px;flex-wrap:wrap">
+                <select id="archive-months" class="input input-sm" style="width:160px">
+                  <option value="6">Keep last 6 months</option>
+                  <option value="12" selected>Keep last 12 months</option>
+                  <option value="24">Keep last 24 months</option>
+                </select>
+                <button class="btn btn-danger-outline btn-sm" id="archive-btn">Archive &amp; Prune</button>
+              </div>
+              <span id="archive-result" class="mt-2 muted" style="display:block;font-size:12px"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Archive Log -->
+        <div class="card" id="db-archive-card">
+          <div class="card-header">
+            <h2 class="card-title">Archive History</h2>
+            <button class="btn btn-sm btn-outline" id="archive-log-refresh-btn">Refresh</button>
+          </div>
+          <div id="archive-log-list"></div>
+        </div>
+      </div>
+
+      <!-- STATUS -->
+      <div class="tab-content status-redesign" id="tab-status">
+        <!-- Risk banner - Status tab only -->
+        <div id="risk-banner-area"></div>
+        <div class="card mb-4 status-command-card">
+          <div class="card-header">
+            <div>
+              <div class="page-kicker">Live diagnostics</div>
+              <h2 class="card-title">Live Node Status Check</h2>
+            </div>
+            <div class="btn-group">
+              <button class="btn btn-primary" id="status-check-btn">Check All Nodes</button>
+              <button class="btn btn-danger-outline" id="status-cancel-btn" style="display:none">Cancel</button>
+              <button class="btn btn-outline" id="status-load-saved-btn">Load Saved</button>
+              <button class="btn btn-outline" id="status-excel-btn">Excel</button>
+              <button class="btn btn-outline" id="status-csv-btn">CSV</button>
+            </div>
+          </div>
+          <p class="card-desc">Checks your tracked nodes against live network status, separates healthy nodes from issues, and keeps export-ready records.</p>
+          <div id="status-summary" class="status-summary-grid"></div>
+          <div class="progress-wrap" id="status-progress-wrap" style="display:none">
+            <div class="progress-bar-outer">
+              <div class="progress-bar-inner accent-green" id="status-progress-bar" style="width:0%"></div>
+            </div>
+            <div class="progress-text" id="status-progress-text">0 / 0</div>
+          </div>
+        </div>
+        <div class="section-grid status-panel-grid">
+          <div class="card status-list-card status-list-card-active">
+            <div class="card-header"><h2 class="card-title status-active-title">Active Nodes</h2></div>
+            <div id="status-active-list" class="scroll-table-wrap"></div>
+          </div>
+          <div class="card status-list-card status-list-card-issues">
+            <div class="card-header"><h2 class="card-title status-issue-title">Nodes with Issues</h2></div>
+            <div id="status-issue-list" class="scroll-table-wrap"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <nav class="mobile-bottom-nav" id="mobile-bottom-nav">
+      <a href="#" class="mbn-item active" data-tab="dashboard">
+        <svg viewBox="0 0 24 24" width="20" height="20"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <a href="#" class="mbn-item" data-tab="nodes">
+        <svg viewBox="0 0 24 24" width="20" height="20"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/></svg>
+        <span>Nodes</span>
+      </a>
+      <a href="#" class="mbn-item" data-tab="scan">
+        <svg viewBox="0 0 24 24" width="20" height="20"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <span>Scan</span>
+      </a>
+      <a href="#" class="mbn-item" data-tab="reports">
+        <svg viewBox="0 0 24 24" width="20" height="20"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
+        <span>Reports</span>
+      </a>
+      <a href="#" class="mbn-item" data-tab="analytics">
+        <svg viewBox="0 0 24 24" width="20" height="20"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span>Analytics</span>
+      </a>
+      <a href="#" class="mbn-item" data-tab="status">
+        <svg viewBox="0 0 24 24" width="20" height="20"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <span>Status</span>
+      </a>
+      <a href="#" class="mbn-item" data-tab="database">
+        <svg viewBox="0 0 24 24" width="20" height="20"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+        <span>Database</span>
+      </a>
+    </nav>
+  </div>
+
+  <!-- Node Detail Drawer -->
+  <div class="nd-overlay" id="node-detail-modal" style="display:none">
+    <div class="nd-drawer">
+      <div class="nd-head">
+        <div class="nd-head-grid"></div>
+        <div class="nd-head-inner">
+          <div class="nd-head-top">
+            <div>
+              <div class="nd-title" id="nd-modal-title">Node Detail</div>
+              <div class="nd-meta" id="nd-meta"></div>
+            </div>
+            <button class="modal-close nd-close" id="node-detail-close-btn">✕</button>
+          </div>
+          <div id="nd-status-bar" class="nd-status-bar"></div>
+        </div>
+      </div>
+      <div class="nd-body">
+        <div class="nd-hero-row">
+          <div class="nd-hero-left">
+            <div class="nd-hero-sup">LIFETIME BDX</div>
+            <div class="nd-hero-val" id="nd-hero-val">—</div>
+            <div class="nd-hero-fiat" id="nd-hero-fiat"></div>
+          </div>
+          <div class="nd-arc-wrap" id="nd-arc-wrap"></div>
+        </div>
+        <div class="nd-insights" id="nd-insights"></div>
+        <div class="nd-stats-strip" id="nd-stats"></div>
+        <div class="nd-divider-label">30-Day Activity</div>
+        <div class="nd-wave-wrap" id="nd-chart"></div>
+        <div class="nd-divider-label" style="margin-top:20px">
+          Reward History <span class="nd-count-badge" id="nd-history-count"></span>
+        </div>
+        <div id="nd-history" class="nd-history-wrap"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="drillthrough-modal" style="display:none">
+    <div class="modal drill-modal">
+      <div class="modal-header">
+        <div>
+          <h2 id="drill-modal-title">Details</h2>
+          <div class="muted" id="drill-modal-subtitle" style="font-size:12px;margin-top:4px"></div>
+        </div>
+        <button class="modal-close" id="drill-close-btn">✕</button>
+      </div>
+      <div id="drill-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Node Modal -->
+  <div class="modal-overlay" id="add-node-modal" style="display:none">
+    <div class="modal node-editor-modal">
+      <div class="modal-header">
+        <h2 id="modal-title">Add Masternode</h2>
+        <button class="modal-close" id="add-node-close-btn">✕</button>
+      </div>
+      <input type="hidden" id="edit-mode" value="add"/>
+      <div class="form-group node-key-field">
+        <label class="label">Public Key (64 hex chars) *</label>
+        <textarea id="new-pubkey" class="input key-input" rows="2" spellcheck="false" autocomplete="off" placeholder="64-character hex public key"></textarea>
+      </div>
+      <div class="node-editor-grid">
+        <div class="form-group">
+          <label class="label">Label</label>
+          <input type="text" id="new-label" class="input" placeholder="e.g. MN-001"/>
+        </div>
+        <div class="form-group">
+          <label class="label">Wallet Name</label>
+          <input type="text" id="new-wallet-name" class="input" placeholder="e.g. Node Hub 1"/>
+        </div>
+      </div>
+      <div class="form-group node-key-field">
+        <label class="label">Wallet Address</label>
+        <textarea id="new-wallet-address" class="input key-input key-input-wallet" rows="2" spellcheck="false" autocomplete="off" placeholder="bx..."></textarea>
+      </div>
+      <div id="add-node-error" class="error-msg" style="display:none"></div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" id="add-node-cancel-btn">Cancel</button>
+        <button class="btn btn-primary" id="modal-submit-btn">Add Node</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="group-preview-modal" style="display:none" tabindex="-1">
+    <div class="modal group-preview-modal">
+      <div class="group-modal-grid"></div>
+      <div class="group-modal-header">
+        <div class="group-modal-headline">
+          <div class="group-modal-kicker">Seed group inspector</div>
+          <h2 id="group-preview-title">Group Detail</h2>
+          <div class="group-modal-subtitle" id="group-preview-subtitle"></div>
+        </div>
+        <button class="modal-close" id="group-preview-close-btn">×</button>
+      </div>
+      <div id="group-preview-body" class="group-preview-body"></div>
+    </div>
+  </div>
+
+  <!-- Scan Safety Modal -->
+  <div class="safety-modal-overlay" id="safety-modal-overlay" style="display:none" role="dialog" aria-modal="true">
+    <div class="safety-modal">
+      <div class="safety-modal-grill"></div>
+      <div class="safety-modal-header">
+        <div class="safety-modal-header-inner">
+          <span class="safety-modal-alert-icon">⚠</span>
+          <div>
+            <div class="safety-modal-title">LARGE SCAN WARNING</div>
+            <div class="safety-modal-subtitle">Authorization required</div>
+          </div>
+        </div>
+      </div>
+      <div class="safety-modal-body">
+        <div class="safety-est-box" id="safety-est-box">
+          <div class="safety-est-row"><span class="safety-est-label">DATE RANGE</span><span class="safety-est-val" id="safety-range-val">—</span></div>
+          <div class="safety-est-row"><span class="safety-est-label">ESTIMATED TIME</span><span class="safety-est-val safety-est-val-warn" id="safety-time-val">—</span></div>
+          <div class="safety-est-row"><span class="safety-est-label">APPROX BLOCKS</span><span class="safety-est-val" id="safety-blocks-val">—</span></div>
+        </div>
+        <p class="safety-desc">Large date ranges take significant time and may hit explorer rate limits. The scan will run in the background — you can cancel anytime.</p>
+        <div class="safety-confirm-wrap">
+          <label class="safety-confirm-label">Type <strong>CONFIRM</strong> to authorize</label>
+          <input type="text" class="safety-confirm-input" id="safety-confirm-input" placeholder="CONFIRM" autocomplete="off" spellcheck="false"/>
+        </div>
+      </div>
+      <div class="safety-modal-footer">
+        <button class="safety-cancel-btn" id="safety-cancel-btn">Abort</button>
+        <button class="safety-proceed-btn" id="safety-proceed-btn" disabled>⚡ Authorize Scan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Archive & Prune Danger Modal -->
+  <div class="danger-modal-overlay" id="archive-prune-modal" style="display:none" role="dialog" aria-modal="true">
+    <div class="danger-modal">
+      <div class="danger-modal-stripe"></div>
+      <div class="danger-modal-header">
+        <div class="danger-modal-header-inner">
+          <span class="danger-modal-icon">🗜</span>
+          <div>
+            <div class="danger-modal-title">ARCHIVE &amp; PRUNE</div>
+            <div class="danger-modal-subtitle">Destructive — removes DB rows permanently</div>
+          </div>
+        </div>
+      </div>
+      <div class="danger-modal-body">
+        <div class="danger-warn-box">
+          <div class="danger-warn-row"><span class="danger-warn-label">ACTION</span><span class="danger-warn-val danger-warn-val-red">Export to .json.gz, then delete from DB</span></div>
+          <div class="danger-warn-row"><span class="danger-warn-label">SCOPE</span><span class="danger-warn-val">Rewards older than <strong id="archive-modal-months" style="color:var(--amber)">—</strong> months</span></div>
+          <div class="danger-warn-row"><span class="danger-warn-label">RECOVERY</span><span class="danger-warn-val">Archive file only — DB rows cannot be restored without re-scanning</span></div>
+        </div>
+        <p class="danger-modal-desc">Old rewards will be exported to a compressed archive file on the server, then permanently deleted from the database. The archive file is your only backup.</p>
+        <div class="danger-confirm-wrap">
+          <label class="danger-confirm-label">Type <strong>DELETE</strong> to confirm</label>
+          <input type="text" class="danger-confirm-input" id="archive-confirm-input" placeholder="DELETE" autocomplete="off" spellcheck="false"/>
+        </div>
+      </div>
+      <div class="danger-modal-footer">
+        <button class="danger-cancel-btn" id="archive-cancel-btn">Cancel</button>
+        <button class="danger-proceed-btn" id="archive-proceed-btn" disabled>🗜 Archive &amp; Prune</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Prune Old Rewards Danger Modal -->
+  <div class="danger-modal-overlay" id="prune-rewards-modal" style="display:none" role="dialog" aria-modal="true">
+    <div class="danger-modal">
+      <div class="danger-modal-stripe"></div>
+      <div class="danger-modal-header">
+        <div class="danger-modal-header-inner">
+          <span class="danger-modal-icon">🗑</span>
+          <div>
+            <div class="danger-modal-title">DELETE OLD REWARDS</div>
+            <div class="danger-modal-subtitle">Destructive — cannot be undone</div>
+          </div>
+        </div>
+      </div>
+      <div class="danger-modal-body">
+        <div class="danger-warn-box">
+          <div class="danger-warn-row"><span class="danger-warn-label">ACTION</span><span class="danger-warn-val danger-warn-val-red">Permanently delete reward records</span></div>
+          <div class="danger-warn-row"><span class="danger-warn-label">SCOPE</span><span class="danger-warn-val">All rewards before <strong id="prune-modal-date" style="color:var(--amber)">—</strong></span></div>
+          <div class="danger-warn-row"><span class="danger-warn-label">RECOVERY</span><span class="danger-warn-val danger-warn-val-red">None — rows are permanently deleted</span></div>
+        </div>
+        <p class="danger-modal-desc">Reward records before the selected date will be removed from the database. Re-scanning that date range is the only way to recover them.</p>
+        <div class="danger-confirm-wrap">
+          <label class="danger-confirm-label">Type <strong>DELETE</strong> to confirm</label>
+          <input type="text" class="danger-confirm-input" id="prune-confirm-input" placeholder="DELETE" autocomplete="off" spellcheck="false"/>
+        </div>
+      </div>
+      <div class="danger-modal-footer">
+        <button class="danger-cancel-btn" id="prune-cancel-btn">Cancel</button>
+        <button class="danger-proceed-btn" id="prune-proceed-btn" disabled>🗑 Delete Old Rewards</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Clear All Nodes Danger Modal -->
+  <div class="danger-modal-overlay" id="clear-nodes-modal" style="display:none" role="dialog" aria-modal="true">
+    <div class="danger-modal">
+      <div class="danger-modal-stripe"></div>
+      <div class="danger-modal-header">
+        <div class="danger-modal-header-inner">
+          <span class="danger-modal-icon">🗑</span>
+          <div>
+            <div class="danger-modal-title">CLEAR ALL NODES</div>
+            <div class="danger-modal-subtitle">Destructive — cannot be undone</div>
+          </div>
+        </div>
+      </div>
+      <div class="danger-modal-body">
+        <div class="danger-warn-box">
+          <div class="danger-warn-row"><span class="danger-warn-label">ACTION</span><span class="danger-warn-val danger-warn-val-red">Delete ALL nodes &amp; reward history</span></div>
+          <div class="danger-warn-row"><span class="danger-warn-label">SCOPE</span><span class="danger-warn-val">All nodes, all scan data, all rewards</span></div>
+          <div class="danger-warn-row"><span class="danger-warn-label">RECOVERY</span><span class="danger-warn-val danger-warn-val-red">None — database rows are permanently deleted</span></div>
+        </div>
+        <p class="danger-modal-desc">This will remove every node and its entire reward history from the database. You will need to re-add nodes and re-scan from scratch.</p>
+        <div class="danger-confirm-wrap">
+          <label class="danger-confirm-label">Type <strong>DELETE</strong> to confirm</label>
+          <input type="text" class="danger-confirm-input" id="clear-nodes-confirm-input" placeholder="DELETE" autocomplete="off" spellcheck="false"/>
+        </div>
+      </div>
+      <div class="danger-modal-footer">
+        <button class="danger-cancel-btn" id="clear-nodes-cancel-btn">Cancel</button>
+        <button class="danger-proceed-btn" id="clear-nodes-proceed-btn" disabled>🗑 Delete Everything</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="js/bundle.js"></script>
+</body>
+</html>

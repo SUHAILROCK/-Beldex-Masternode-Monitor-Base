@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>SSW Monitor - Login</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:     #050810;
+      --bg2:    #080c16;
+      --bg3:    #0d1424;
+      --card:   #0a1020;
+      --card2:  #0f1830;
+      --border: #152038;
+      --border2:#1e2f4a;
+      --teal:   #00d4aa;
+      --teal-dim:#00b090;
+      --teal-glow:rgba(0,212,170,0.12);
+      --teal-line:rgba(0,212,170,0.25);
+      --amber:  #f0a500;
+      --red:    #f04f4f;
+      --text:   #eaf1ff;
+      --text2:  #adc0d8;
+      --muted:  #637d9b;
+    }
+    html, body {
+      height: 100%;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      background-image: radial-gradient(circle, rgba(0,212,170,0.04) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .login-wrap {
+      width: 100%;
+      max-width: 380px;
+      padding: 24px;
+    }
+    .login-logo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 32px;
+    }
+    .logo-icon {
+      width: 42px; height: 42px;
+      background: linear-gradient(135deg, var(--teal), #00a8ff);
+      border-radius: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 800;
+      color: #050810;
+      box-shadow: 0 0 24px rgba(0,212,170,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+      animation: logoGlow 4s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+    @keyframes logoGlow {
+      0%,100% { box-shadow: 0 0 24px rgba(0,212,170,0.4), inset 0 1px 0 rgba(255,255,255,0.2); }
+      50%      { box-shadow: 0 0 40px rgba(0,212,170,0.6), inset 0 1px 0 rgba(255,255,255,0.2); }
+    }
+    .logo-text { display: flex; flex-direction: column; align-items: center; }
+    .logo-title { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; background: linear-gradient(135deg, var(--teal), #00a8ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .logo-sub { font-size: 10px; color: var(--muted); font-family: 'IBM Plex Mono', monospace; letter-spacing: 2px; text-transform: uppercase; margin-top: 3px; }
+    .card {
+      background: var(--card2);
+      border: 1px solid var(--border2);
+      border-radius: 14px;
+      padding: 28px 28px 24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 80px rgba(0,212,170,0.04);
+    }
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text2);
+      margin-bottom: 20px;
+      text-align: center;
+      letter-spacing: -0.2px;
+    }
+    .form-group { margin-bottom: 16px; }
+    .label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 7px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .input {
+      width: 100%;
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 14px;
+      color: var(--text);
+      font-family: 'IBM Plex Mono', monospace;
+      outline: none;
+      transition: border-color 0.18s, box-shadow 0.18s;
+      letter-spacing: 0.5px;
+    }
+    .input:focus {
+      border-color: var(--teal-line);
+      box-shadow: 0 0 0 3px var(--teal-glow);
+    }
+    .btn {
+      width: 100%;
+      padding: 11px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: -0.1px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--teal), #00a8ff);
+      color: #050810;
+      box-shadow: 0 4px 20px rgba(0,212,170,0.25);
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(0,212,170,0.35); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .error-msg {
+      background: rgba(240,79,79,0.08);
+      color: var(--red);
+      border: 1px solid rgba(240,79,79,0.22);
+      border-radius: 7px;
+      padding: 9px 13px;
+      font-size: 12px;
+      margin-top: 12px;
+      text-align: center;
+      display: none;
+    }
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 20px 0;
+    }
+    .footer-note {
+      text-align: center;
+      font-size: 10px;
+      color: var(--muted);
+      font-family: 'IBM Plex Mono', monospace;
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="login-logo">
+      <img src="SSWLOGO.webp" alt="SSW Monitor logo" style="width:200px;height:130px;object-fit:contain;flex-shrink:0;" />
+      <div class="logo-text">
+        <div class="logo-title">SSW Monitor</div>
+        <div class="logo-sub">Masternode Dashboard</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Enter password to continue</div>
+      <form id="login-form">
+        <div class="form-group">
+          <label class="label" for="password">Password</label>
+          <input type="password" id="password" class="input" placeholder="••••••••" autocomplete="current-password" autofocus/>
+        </div>
+        <button type="submit" class="btn btn-primary" id="login-btn">Unlock</button>
+      </form>
+      <div class="error-msg" id="login-error">Incorrect password. Try again.</div>
+    </div>
+    <div class="footer-note">SSW Masternode Monitor · Protected</div>
+  </div>
+  <script src="login.js"></script>
+</body>
+</html>
