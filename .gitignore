@@ -1,0 +1,33 @@
+# ─── Dependencies ─────────────────────────
+node_modules/
+
+# ─── Database (contains real reward data) ─
+*.db
+*.db-shm
+*.db-wal
+
+# ─── Sensitive Data ──────────────────────
+# Contains real wallet addresses and masternode public keys
+public/nodes-data.js
+# Environment variables (never commit passwords)
+.env
+
+# Runtime config (contains scheduler state)
+scheduler_config.json
+
+# ─── OS / Editor ─────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# ─── Logs ────────────────────────────────
+*.log
+npm-debug.log*
+
+# ─── AI Tool Folders ────────────────────
+.claude/
+.gemini/
